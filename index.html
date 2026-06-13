@@ -1,5 +1,302 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>云南旅行计划</title><style>
-:root{--blue:#1d4ed8;--bg:#f7f8fb;--card:#fff;--line:#e5e7eb;--text:#111827;--muted:#6b7280}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Arial,sans-serif;background:var(--bg);color:var(--text)}.wrap{max-width:1180px;margin:0 auto;padding:22px 14px 80px}header{margin:8px 0 18px}.title{font-size:30px;font-weight:800;margin:0}.sub{color:var(--muted);margin-top:7px}.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.06);padding:18px;margin:14px 0}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.tab{border:1px solid var(--line);background:#fff;padding:9px 14px;border-radius:999px;cursor:pointer;font-weight:700}.tab.active{background:#111827;color:#fff}.timeline{overflow-x:auto;padding-bottom:8px}.grid{min-width:930px;display:grid;grid-template-columns:116px repeat(12,1fr);gap:0;position:relative}.cell,.head{border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:48px}.head{font-weight:800;color:#374151;display:flex;align-items:center;justify-content:center;background:#fafafa}.label{padding:0 12px;display:flex;align-items:center;color:var(--blue);font-weight:800;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}.row{display:contents}.bar{align-self:center;margin:7px 6px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#0f172a;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);white-space:nowrap}.bar:hover{filter:brightness(.97);transform:translateY(-1px)}.optional:after{content:"（备选）";font-weight:800;margin-left:4px}.hint{color:var(--muted);font-size:13px;margin-top:10px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.city-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer}.city-card h3{margin:0 0 6px;color:var(--blue)}.city-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}.modal.show{display:flex}.sheet{background:#fff;border-radius:22px;width:min(760px,100%);max-height:86vh;overflow:auto;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.22)}.sheet-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.sheet h2{margin:0;color:var(--blue);font-size:26px}.close{border:0;background:#f3f4f6;border-radius:999px;width:36px;height:36px;font-size:22px;cursor:pointer}.section{margin-top:18px}.section h3{font-size:17px;margin:0 0 9px}.item{border:1px solid var(--line);border-radius:14px;padding:11px;margin:8px 0;background:#fbfbfc}.item b{display:block}.price{color:#b45309;font-weight:800;margin-top:4px}.note{color:#4b5563;font-size:14px;line-height:1.5;margin-top:4px}a{color:var(--blue);text-decoration:none;font-weight:700}.empty{color:#9ca3af;font-size:14px}.footer{color:var(--muted);font-size:13px;text-align:center;margin:26px 0}@media(max-width:640px){.wrap{padding:14px 10px 60px}.title{font-size:25px}.panel{border-radius:16px;padding:13px}.grid{min-width:760px;grid-template-columns:92px repeat(12,56px)}.bar{font-size:13px}.label{font-size:13px;padding:0 8px}.sheet{padding:16px;border-radius:18px}.sheet h2{font-size:23px}}
-</style></head><body><div class="wrap"><header><h1 class="title" id="siteTitle">云南旅行计划</h1><div class="sub" id="subtitle"></div></header><section class="panel"><div class="tabs" id="tabs"></div><div class="timeline"><div class="grid" id="grid"></div></div><div class="hint">点击城市色块可以查看酒店、景点、美食、交通和预算。城市名为蓝色，色块保持连续跨天。</div></section><section class="panel"><h2 style="margin:0 0 12px">城市详情入口</h2><div class="cards" id="cards"></div></section><div class="footer">GitHub Pages 队友共享版｜内容来自 data.json，后续可由 OpenClaw 修改</div></div><div class="modal" id="modal"><div class="sheet"><div class="sheet-head"><div><h2 id="modalTitle"></h2><p class="sub" id="modalSummary"></p></div><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div><script>
-let DATA, currentRoute=0; async function load(){const r=await fetch('data.json?ts='+Date.now()); DATA=await r.json(); document.title=DATA.siteTitle; siteTitle.textContent=DATA.siteTitle; subtitle.textContent=DATA.subtitle; renderTabs(); renderTimeline(); renderCards()}function renderTabs(){tabs.innerHTML='';DATA.routes.forEach((route,i)=>{const b=document.createElement('button');b.className='tab'+(i===currentRoute?' active':'');b.textContent=route.name;b.onclick=()=>{currentRoute=i;renderTabs();renderTimeline()};tabs.appendChild(b)})}function renderTimeline(){grid.innerHTML='';grid.appendChild(el('div','head','地点'));DATA.days.forEach(d=>grid.appendChild(el('div','head',d)));const route=DATA.routes[currentRoute];const cities=[...new Set(route.segments.map(s=>s.city+(s.optional?'__optional':'')))];cities.forEach(key=>{const city=key.replace('__optional','');const opt=key.includes('__optional');grid.appendChild(el('div','label',city+(opt?'（备选）':'')));for(let i=1;i<=DATA.days.length;i++)grid.appendChild(el('div','cell',''));route.segments.filter(s=>s.city===city&&!!s.optional===opt).forEach(seg=>{const bar=el('div','bar'+(seg.optional?' optional':''),seg.city);bar.style.background=seg.color;bar.style.gridColumn=(seg.start+1)+' / span '+seg.duration;bar.style.gridRow='auto';bar.onclick=()=>openCity(seg.city);const rowStart=[...grid.children].length-(DATA.days.length+1)+1;bar.style.gridRow=Math.ceil(rowStart/(DATA.days.length+1));grid.appendChild(bar)})})}function renderCards(){cards.innerHTML='';Object.entries(DATA.cities).forEach(([name,c])=>{const d=document.createElement('div');d.className='city-card';d.onclick=()=>openCity(name);d.innerHTML=`<h3>${name}</h3><p>${c.summary||'待补充'}</p>`;cards.appendChild(d)})}function openCity(name){const c=DATA.cities[name]||{};modalTitle.textContent=name;modalSummary.textContent=c.summary||'';modalBody.innerHTML=section('酒店',c.hotels)+section('景点',c.spots)+section('美食',c.food)+transport(c.transport)+`<div class="section"><h3>预算</h3><div class="item">${c.budget||'待补充'}</div></div>`;modal.classList.add('show')}function section(title,arr=[]){return `<div class="section"><h3>${title}</h3>${arr.length?arr.map(item).join(''):'<div class="empty">待补充</div>'}</div>`}function item(x){return `<div class="item"><b>${x.link?`<a href="${x.link}" target="_blank">${x.name}</a>`:x.name}</b>${x.price?`<div class="price">${x.price}</div>`:''}${x.note?`<div class="note">${x.note}</div>`:''}</div>`}function transport(arr=[]){return `<div class="section"><h3>交通</h3>${arr.length?arr.map(x=>`<div class="item"><b>${x.day||''}</b><div class="note">${x.note||''}</div></div>`).join(''):'<div class="empty">待补充</div>'}</div>`}function closeModal(){modal.classList.remove('show')}modal.onclick=e=>{if(e.target.id==='modal')closeModal()};function el(t,c,txt){const x=document.createElement(t);x.className=c;x.textContent=txt;return x}load();
-</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>云南旅行计划</title>
+  <style>
+    :root {
+      --blue: #1d4ed8;
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --line: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 14px 90px; }
+    header { margin-bottom: 18px; }
+    .title { font-size: 34px; font-weight: 800; margin: 0; }
+    .subtitle { color: var(--muted); margin-top: 6px; }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 14px 35px rgba(15,23,42,0.08);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .tab {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 18px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tab.active { background: var(--text); color: #fff; }
+    .timeline-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #f5f6fa; font-weight: 800; color: #374151; }
+    th, td { border: 1px solid var(--line); padding: 10px; text-align: center; min-width: 70px; }
+    tbody th { background: #fff; color: var(--blue); font-weight: 800; }
+    .block {
+      border-radius: 12px;
+      color: #0f172a;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .block span { display: block; padding: 4px 0; }
+    .hint { color: var(--muted); font-size: 13px; margin-top: 10px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .city-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      cursor: pointer;
+      background: #fff;
+      transition: transform .15s ease;
+    }
+    .city-card:hover { transform: translateY(-2px); }
+    .city-card h3 { margin: 0 0 6px; color: var(--blue); }
+    .city-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.45); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 99; }
+    .modal.show { display: flex; }
+    .sheet { background: #fff; border-radius: 22px; width: min(780px, 100%); max-height: 90vh; overflow: auto; padding: 22px; box-shadow: 0 20px 70px rgba(0,0,0,0.25); }
+    .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .sheet h2 { margin: 0; color: var(--blue); }
+    .close { border: 0; background: #f3f4f6; border-radius: 999px; width: 38px; height: 38px; font-size: 22px; cursor: pointer; }
+    .section { margin-top: 20px; }
+    .section h3 { margin: 0 0 10px; font-size: 18px; }
+    .item { border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 10px; text-align: left; }
+    .item b { display: block; }
+    .price { color: #b45309; font-weight: 800; margin-top: 4px; }
+    .note { color: #4b5563; font-size: 14px; margin-top: 4px; line-height: 1.5; }
+    .empty { color: #9ca3af; font-size: 14px; }
+    @media (max-width: 640px) {
+      .wrap { padding: 18px 10px 70px; }
+      .title { font-size: 28px; }
+      th, td { padding: 8px 4px; min-width: 58px; }
+      .sheet { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="title" id="siteTitle">云南旅行计划</h1>
+      <div class="subtitle" id="subtitle"></div>
+    </header>
+
+    <section class="panel">
+      <div class="tabs" id="planTabs"></div>
+      <div class="timeline-wrap">
+        <table class="timeline-table">
+          <thead id="timelineHead"></thead>
+          <tbody id="timelineBody"></tbody>
+        </table>
+      </div>
+      <div class="hint" id="hint"></div>
+    </section>
+
+    <section class="panel">
+      <h2 style="margin:0 0 12px">城市详情入口</h2>
+      <div class="cards" id="cityCards"></div>
+    </section>
+
+    <div class="footer">GitHub Pages 队友共享版｜所有内容来自 data.json</div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h2 id="modalTitle"></h2>
+          <p class="subtitle" id="modalSummary"></p>
+        </div>
+        <button class="close" type="button" id="closeBtn">×</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const state = { data: null, activePlanId: null, cityMap: new Map() };
+
+    async function loadData() {
+      try {
+        const res = await fetch('data.json?ts=' + Date.now());
+        if (!res.ok) throw new Error('加载 data.json 失败');
+        state.data = await res.json();
+        state.activePlanId = state.data.plans[0]?.id || null;
+        state.cityMap = new Map(state.data.cities.map(c => [c.id, c]));
+        renderPage();
+      } catch (err) {
+        document.getElementById('subtitle').textContent = err.message;
+      }
+    }
+
+    function renderPage() {
+      if (!state.data) return;
+      const { meta } = state.data;
+      document.title = meta.title;
+      document.getElementById('siteTitle').textContent = meta.title;
+      document.getElementById('subtitle').textContent = meta.subtitle || '';
+      document.getElementById('hint').textContent = meta.hint || '';
+      renderPlanTabs();
+      renderTimeline();
+      renderCards();
+    }
+
+    function renderPlanTabs() {
+      const tabs = document.getElementById('planTabs');
+      tabs.innerHTML = '';
+      state.data.plans.forEach(plan => {
+        const btn = document.createElement('button');
+        btn.className = 'tab' + (plan.id === state.activePlanId ? ' active' : '');
+        btn.textContent = plan.name;
+        btn.onclick = () => {
+          state.activePlanId = plan.id;
+          renderPlanTabs();
+          renderTimeline();
+        };
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderTimeline() {
+      const plan = state.data.plans.find(p => p.id === state.activePlanId);
+      const head = document.getElementById('timelineHead');
+      const body = document.getElementById('timelineBody');
+      head.innerHTML = '';
+      body.innerHTML = '';
+      const headRow = document.createElement('tr');
+      const first = document.createElement('th');
+      first.textContent = '地点';
+      headRow.appendChild(first);
+      state.data.meta.days.forEach(day => {
+        const th = document.createElement('th');
+        th.textContent = day;
+        headRow.appendChild(th);
+      });
+      head.appendChild(headRow);
+      if (!plan) return;
+      plan.segments.forEach(segment => {
+        body.appendChild(buildTimelineRow(segment));
+      });
+    }
+
+    function buildTimelineRow(segment) {
+      const totalDays = state.data.meta.days.length;
+      const tr = document.createElement('tr');
+      const city = state.cityMap.get(segment.cityId);
+      const th = document.createElement('th');
+      th.textContent = (city?.name || segment.label) + (segment.optional ? '（备选）' : '');
+      tr.appendChild(th);
+      let cursor = 1;
+      while (cursor <= totalDays) {
+        if (cursor === segment.startDay) {
+          const span = Math.min(segment.duration, totalDays - cursor + 1);
+          const td = document.createElement('td');
+          td.className = 'block';
+          td.colSpan = span;
+          td.style.background = segment.color;
+          td.innerHTML = `<span>${segment.label}</span>`;
+          td.onclick = () => openCity(segment.cityId);
+          tr.appendChild(td);
+          cursor += span;
+        } else if (cursor < segment.startDay || cursor > segment.startDay + segment.duration - 1) {
+          tr.appendChild(document.createElement('td'));
+          cursor += 1;
+        }
+      }
+      return tr;
+    }
+
+    function renderCards() {
+      const cards = document.getElementById('cityCards');
+      cards.innerHTML = '';
+      state.data.cities.forEach(city => {
+        const div = document.createElement('div');
+        div.className = 'city-card';
+        div.onclick = () => openCity(city.id);
+        div.innerHTML = `<h3>${city.name}</h3><p>${city.summary || '待补充'}</p>`;
+        cards.appendChild(div);
+      });
+    }
+
+    function openCity(id) {
+      const city = state.cityMap.get(id);
+      if (!city) return;
+      document.getElementById('modalTitle').textContent = city.name;
+      document.getElementById('modalSummary').textContent = city.summary || '';
+      const body = document.getElementById('modalBody');
+      body.innerHTML = [
+        renderSection('酒店', city.hotels),
+        renderSection('景点', city.spots),
+        renderSection('美食', city.food),
+        renderTransport(city.transport),
+        renderBudget(city.budget)
+      ].join('');
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function renderSection(title, list = []) {
+      if (!Array.isArray(list) || list.length === 0) {
+        return `<div class="section"><h3>${title}</h3><div class="empty">待补充</div></div>`;
+      }
+      return `
+        <div class="section">
+          <h3>${title}</h3>
+          ${list.map(renderItem).join('')}
+        </div>`;
+    }
+
+    function renderItem(item) {
+      const name = item.link ? `<a href="${item.link}" target="_blank">${item.name}</a>` : item.name;
+      return `
+        <div class="item">
+          <b>${name || '待补充'}</b>
+          ${item.price ? `<div class="price">${item.price}</div>` : ''}
+          ${item.note ? `<div class="note">${item.note}</div>` : ''}
+        </div>`;
+    }
+
+    function renderTransport(list = []) {
+      if (!Array.isArray(list) || list.length === 0) {
+        return `<div class="section"><h3>交通</h3><div class="empty">待补充</div></div>`;
+      }
+      return `
+        <div class="section">
+          <h3>交通</h3>
+          ${list.map(item => `<div class="item"><b>${item.day || ''}</b><div class="note">${item.note || ''}</div></div>`).join('')}
+        </div>`;
+    }
+
+    function renderBudget(text) {
+      return `
+        <div class="section">
+          <h3>预算</h3>
+          <div class="item">${text || '待补充'}</div>
+        </div>`;
+    }
+
+    document.getElementById('modal').addEventListener('click', (evt) => {
+      if (evt.target.id === 'modal') {
+        document.getElementById('modal').classList.remove('show');
+      }
+    });
+    document.getElementById('closeBtn').addEventListener('click', () => document.getElementById('modal').classList.remove('show'));
+
+    loadData();
+  </script>
+</body>
+</html>
