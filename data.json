@@ -1,0 +1,53 @@
+{
+  "siteTitle": "云南旅行计划",
+  "subtitle": "6月22日出发｜队友共享版",
+  "startDate": "2026-06-22",
+  "days": [
+    "6/22", "6/23", "6/24", "6/25", "6/26", "6/27", "6/28", "6/29", "6/30", "7/1", "7/2", "7/3"
+  ],
+  "routes": [
+    {
+      "name": "主方案",
+      "segments": [
+        {"city": "西双版纳", "start": 1, "duration": 3, "color": "#8fd3a6"},
+        {"city": "昆明", "start": 4, "duration": 1, "color": "#a9c7ff"},
+        {"city": "大理", "start": 5, "duration": 3, "color": "#ffd28f"},
+        {"city": "丽江", "start": 8, "duration": 2, "color": "#f6a7c1"},
+        {"city": "香格里拉", "start": 10, "duration": 2, "color": "#c7b7ff"},
+        {"city": "昆明", "start": 12, "duration": 1, "color": "#a9c7ff"}
+      ]
+    },
+    {
+      "name": "含普洱备选",
+      "segments": [
+        {"city": "西双版纳", "start": 1, "duration": 2, "color": "#8fd3a6"},
+        {"city": "普洱", "start": 3, "duration": 1, "color": "#b7de8a", "optional": true},
+        {"city": "昆明", "start": 4, "duration": 1, "color": "#a9c7ff"},
+        {"city": "大理", "start": 5, "duration": 3, "color": "#ffd28f"},
+        {"city": "丽江", "start": 8, "duration": 2, "color": "#f6a7c1"},
+        {"city": "香格里拉", "start": 10, "duration": 2, "color": "#c7b7ff"},
+        {"city": "昆明", "start": 12, "duration": 1, "color": "#a9c7ff"}
+      ]
+    }
+  ],
+  "cities": {
+    "西双版纳": {
+      "summary": "热带风情、夜市、植物园。适合放在旅程开头慢慢进入状态。",
+      "hotels": [{"name": "待补充酒店", "price": "￥---/晚", "note": "建议优先看告庄附近，方便夜市和打车。", "link": ""}],
+      "spots": [{"name": "中科院热带植物园", "price": "￥---", "note": "可能需要留一整天。", "link": ""}, {"name": "曼听公园", "price": "￥---", "note": "市区内，适合半天。", "link": ""}],
+      "food": [{"name": "傣味烧烤", "price": "人均￥---", "note": "晚餐备选。", "link": ""}],
+      "transport": [{"day": "Day1", "note": "抵达西双版纳，机场/车站到酒店。"}],
+      "budget": "待补充"
+    },
+    "普洱": {
+      "summary": "备选城市，用于替代西双版纳第3天或作为中转。",
+      "hotels": [], "spots": [], "food": [],
+      "transport": [{"day": "备选日", "note": "西双版纳 → 普洱 → 昆明，具体看车次。"}],
+      "budget": "待补充"
+    },
+    "昆明": {"summary":"中转和返程城市。", "hotels":[], "spots":[{"name":"滇池/海埂大坝","price":"￥---","note":"半天即可。","link":""}], "food":[], "transport":[{"day":"Day4/Day12","note":"作为中转和返程节点。"}], "budget":"待补充"},
+    "大理": {"summary":"洱海、古城、慢节奏，适合安排三天。", "hotels":[], "spots":[{"name":"洱海","price":"￥---","note":"可安排骑行或包车。","link":""},{"name":"大理古城","price":"￥---","note":"晚上逛更舒服。","link":""}], "food":[], "transport":[], "budget":"待补充"},
+    "丽江": {"summary":"古城、玉龙雪山方向。", "hotels":[], "spots":[{"name":"丽江古城","price":"￥---","note":"注意商业化程度。","link":""},{"name":"玉龙雪山","price":"￥---","note":"需要提前看票和高反风险。","link":""}], "food":[], "transport":[], "budget":"待补充"},
+    "香格里拉": {"summary":"高海拔，节奏要放慢。", "hotels":[], "spots":[{"name":"松赞林寺","price":"￥---","note":"经典景点。","link":""},{"name":"独克宗古城","price":"￥---","note":"晚上可逛。","link":""}], "food":[], "transport":[], "budget":"待补充"}
+  }
+}
