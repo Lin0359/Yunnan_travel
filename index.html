@@ -67,6 +67,9 @@
     .city-card:hover { transform: translateY(-2px); }
     .city-card h3 { margin: 0 0 6px; color: var(--blue); }
     .city-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+    .badge { display: inline-flex; align-items: center; border-radius: 999px; background: #f3f4f6; color: #374151; padding: 4px 9px; font-size: 12px; font-weight: 700; }
+    .travel-line { display: block; margin-top: 3px; font-size: 12px; font-weight: 700; opacity: .9; }
     .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
     .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.45); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 99; }
     .modal.show { display: flex; }
@@ -209,7 +212,7 @@
           td.className = 'block';
           td.colSpan = span;
           td.style.background = segment.color;
-          td.innerHTML = `<span>${segment.label}</span>`;
+          td.innerHTML = `<span>${segment.label}</span>${segment.travel ? `<span class="travel-line">${segment.travel}</span>` : ''}`;
           td.onclick = () => openCity(segment.cityId);
           tr.appendChild(td);
           cursor += span;
@@ -228,7 +231,15 @@
         const div = document.createElement('div');
         div.className = 'city-card';
         div.onclick = () => openCity(city.id);
-        div.innerHTML = `<h3>${city.name}</h3><p>${city.summary || '待补充'}</p>`;
+        const budgetBadge = city.budgetNote || city.budget || '';
+        const travelBadge = getCityTravel(city.id);
+        div.innerHTML = `
+          <h3>${city.name}</h3>
+          <div class="badge-row">
+            ${budgetBadge ? `<span class="badge">${budgetBadge}</span>` : ''}
+            ${travelBadge ? `<span class="badge">${travelBadge}</span>` : ''}
+          </div>
+          <p>${city.summary || '待补充'}</p>`;
         cards.appendChild(div);
       });
     }
@@ -237,16 +248,29 @@
       const city = state.cityMap.get(id);
       if (!city) return;
       document.getElementById('modalTitle').textContent = city.name;
-      document.getElementById('modalSummary').textContent = city.summary || '';
+      const modalSummary = document.getElementById('modalSummary');
+      const travelBadge = getCityTravel(city.id);
+      modalSummary.innerHTML = `
+        ${city.summary || ''}
+        <div class="badge-row">
+          ${city.budgetNote ? `<span class="badge">${city.budgetNote}</span>` : ''}
+          ${travelBadge ? `<span class="badge">${travelBadge}</span>` : ''}
+        </div>`;
       const body = document.getElementById('modalBody');
       body.innerHTML = [
         renderSection('酒店', city.hotels),
         renderSection('景点', city.spots),
         renderSection('美食', city.food),
         renderTransport(city.transport),
-        renderBudget(city.budget)
+        renderBudget(city.budget, city.budgetNote)
       ].join('');
       document.getElementById('modal').classList.add('show');
+    }
+
+    function getCityTravel(cityId) {
+      const plan = state.data?.plans?.find(p => p.id === state.activePlanId) || state.data?.plans?.[0];
+      const segment = plan?.segments?.find(s => s.cityId === cityId && s.travel);
+      return segment?.travel || '';
     }
 
     function renderSection(title, list = []) {
@@ -281,11 +305,14 @@
         </div>`;
     }
 
-    function renderBudget(text) {
+    function renderBudget(text, budgetNote) {
       return `
         <div class="section">
           <h3>预算</h3>
-          <div class="item">${text || '待补充'}</div>
+          <div class="item">
+            ${budgetNote ? `<div class="price">${budgetNote}</div>` : ''}
+            <div class="note">${text || '待补充'}</div>
+          </div>
         </div>`;
     }
 
